@@ -37,10 +37,11 @@ func main() {
 
 	//*************************Hosting client.html page
 
-	r.GET("/uploaditem", func(c *gin.Context) {
-		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/uploaditem.html")
+	r.GET("/available_Items", func(c *gin.Context) {
+		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/available_Items.html")
 		c.Data(200, "text/html", res)
 	})
+
 	r.GET("/main", func(c *gin.Context) {
 		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/index.html")
 		c.Data(200, "text/html", res)
@@ -206,12 +207,12 @@ func main() {
 
 	})
 
-	//****************** method to serve request for MENU of particular vendor
-	r.POST("/getitems", func(c *gin.Context) {
+	//****************** method to serve request for ME NU of particular vendor
+	r.GET("/getitems", func(c *gin.Context) {
 
 		fmt.Println("\n\nRequest for retreiving vendors menu Received : \n\n")
 
-		rows, err := db.Query(` SELECT  name ,email , mobile , hostel , room , item_name , item_type  , sold , price ,
+		rows, err := db.Query(` SELECT  name ,email , mobile , hostel , room , item_name , item_type  ,  price ,
 		item_description from item `)
 
 		if err != nil {

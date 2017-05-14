@@ -26,28 +26,38 @@
         <!-- <script type="text/javascript" src="js/memenu.js"></script> -->
         <script type="text/javascript">
         window.onload = function() {
-              fetch('http://10.42.0.160:7070/getItems')
-                  .then((resp) => resp.json()) // Transform the data into json
-                  .then(function(data) {
-                    // Create and append the li's to the ul
-                    console.log(data);
-                    var listitems= document.getElementById("listItems");
-                    for (var i = 0; i < data.length ; i++) {
-                            listitems.innerHTML += `
-                    <div class="w3-card ">
-                    <pre>
-                    <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
-                    Item Name        : ${data[i].itemname} 
-                    Item Type        : ${data[i].itemtype} 
-                    Price            : ${data[i].price}
-                    Item Description : ${data[i].itemdescription}
-                    
-                    Kindly Contact: 
-                    ${data[i].name}, ${data[i].email}, ${data[i].mobile}, ${data[i].hostel}, ${data[i].room} <br>
-                    </pre>
-                    </div> `;
-                    };
-                    });
+             
+      fetch('/getitems', {
+          method: 'GET',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+          },
+          credentials: 'same-origin'
+      }).then(function(response) {
+
+          return response.json();
+
+      }).then(function(data) {
+       console.log(data);
+         var listitems= document.getElementById("listItems");
+                for (var i = 0; i < data.length ; i++) {
+                    listitems.innerHTML += `
+            <div class="w3-card ">
+            <pre>
+            <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
+            Item Name        : ${data[i].itemname} 
+            Item Type        : ${data[i].itemtype} 
+            Price            : ${data[i].price}
+            Item Description : ${data[i].itemdescription}
+            
+            Kindly Contact: 
+            ${data[i].name}, ${data[i].email}, ${data[i].mobile}, ${data[i].hostel}, ${data[i].room} <br>
+            </pre>
+            </div> `;
+            };
+
+      })
           // displayItems();
         };
             // function displayItems() {
