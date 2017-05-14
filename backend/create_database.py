@@ -72,8 +72,7 @@ except Exception as e:
 cursor.execute("""
     create table customer(
         customer_id bigserial PRIMARY KEY,
-        first_name text NOT NULL,
-        last_name text NOT NULL,
+        name text NOT NULL,
         email text NOT NULL,
         mobile text,
         hostel text NOT NULL,

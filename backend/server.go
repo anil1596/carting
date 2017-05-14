@@ -41,6 +41,14 @@ func main() {
 		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/uploaditem.html")
 		c.Data(200, "text/html", res)
 	})
+	r.GET("/main", func(c *gin.Context) {
+		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/index.html")
+		c.Data(200, "text/html", res)
+	})
+	r.GET("/register", func(c *gin.Context) {
+		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/register.html")
+		c.Data(200, "text/html", res)
+	})
 	//**********************fetching Javascript files file
 	r.GET("/js/:js_file", func(c *gin.Context) {
 		//to ser
@@ -61,7 +69,7 @@ func main() {
 		//to ser
 		cssFile := c.Param("css_file")
 
-		res, err := ioutil.ReadFile("/home/anil/major2/web/css/" + cssFile)
+		res, err := ioutil.ReadFile("/home/anil/major2/web/carting/css/" + cssFile)
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(404, "error while fetching file")
@@ -72,12 +80,12 @@ func main() {
 	})
 
 	//********************fetching Images
-	r.GET("/img/:img_file", func(c *gin.Context) {
+	r.GET("/images/:img_file", func(c *gin.Context) {
 		//to ser
 		imgFile := c.Param("img_file")
 		extension := strings.ToLower(strings.Split(imgFile, ".")[1])
 
-		res, err := ioutil.ReadFile("/home/anil/major2/web/images/" + imgFile)
+		res, err := ioutil.ReadFile("/home/anil/major2/web/carting/images/" + imgFile)
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(404, "error while fetching Image")
@@ -169,108 +177,74 @@ func main() {
 	})
 
 	//*************************customer registration
-	// r.GET("/registercustomer", func(c *gin.Context) {
-	// 	var cus customer
-	// 	c.BindJSON(&cus)
+	r.GET("/registercustomer", func(c *gin.Context) {
+		var cus customer
+		c.BindJSON(&cus)
 
-	// 	fmt.Println("\n\nRequest Received : \n\n")
+		fmt.Println("\n\nRequest Received : \n\n")
 
-	// 	tx, _ := db.Begin() // tx => transaction , _ => error and execute
+		tx, _ := db.Begin() // tx => transaction , _ => error and execute
 
-	// 	defer tx.Rollback() // it will be executed after the completion of local function
+		defer tx.Rollback() // it will be executed after the completion of local function
 
-	// 	// var track CSID
+		// var track CSID
+		var track int
+		// insert into users table
+		tx.QueryRow(`
+	    INSERT INTO customer (name, email , mobile , hostel, room , bid_amount , item_id ) values ($1, $2, $3, $4, $5,$6,$7) returning customer_id
+	      `, cus.Name, cus.Email, cus.Mobile, cus.Hostel, cus.Room, cus.Bid_amount, cus.Item_id).Scan(&track)
 
-	// 	// insert into users table
-	// 	tx.QueryRow(`
-	//     INSERT INTO customers ( customer_id,first_name, last_name, email , mobile , hostel , room ,   bid_amount text NOT NULL,
-	//     item_id int NOT NULL references item(item_no) ) values ($1, $2, $3, $4, $5) returning customer_id
-	//       `, cus.Name, cus.Email, cus.Mobile, cus.Address, cus.Password).Scan(&track.Customerid)
+		commit_err := tx.Commit()
 
-	// 	commit_err := tx.Commit()
+		if commit_err != nil {
+			tx.Rollback()
+			c.JSON(500, "ERR")
+			return
+		}
+		// fmt.Println("cutomer registered and his ID:", track.Customerid)
+		c.JSON(200, track)
 
-	// 	if commit_err != nil {
-	// 		tx.Rollback()
-	// 		c.JSON(500, "ERR")
-	// 		return
-	// 	}
-	// 	// fmt.Println("cutomer registered and his ID:", track.Customerid)
-	// 	c.JSON(200, track)
+	})
 
-	// })
+	//****************** method to serve request for MENU of particular vendor
+	r.POST("/getitems", func(c *gin.Context) {
 
-	// //*****************************Serving vendors and their id's
-	// r.GET("/getvendors", func(c *gin.Context) {
-	// 	// c.BindJSON(&cus)
+		fmt.Println("\n\nRequest for retreiving vendors menu Received : \n\n")
 
-	// 	fmt.Println("\n\nRequest Received : \n\n")
+		rows, err := db.Query(` SELECT  name ,email , mobile , hostel , room , item_name , item_type  , sold , price ,
+		item_description from item `)
 
-	// 	rows, err := db.Query(` SELECT  vendorid, vendorname from vendors `)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		c.JSON(500, "error while retreiving vendors data")
-	// 	}
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(500, "error while retreiving vendors menu")
+		}
 
-	// 	defer rows.Close()
+		defer rows.Close()
 
-	// 	// var vendors = make(map[string]int)
-	// 	ven := make([]VendorsToSend, 0)
+		// var vendors = make(map[string]int)
+		items := make([]item, 0)
 
-	// 	for rows.Next() {
-	// 		var t VendorsToSend
-	// 		err := rows.Scan(&t.Vendorid, &t.Vendorname)
-	// 		ven = append(ven, t)
-	// 		if err != nil {
-	// 			fmt.Println(err)
-	// 			c.JSON(500, "error while retreiving vendors data")
-	// 		}
-	// 	}
-	// 	c.JSON(200, ven)
-	// 	fmt.Println("Vendors names are sent")
-	// })
+		for rows.Next() {
+			var t item
+			err := rows.Scan(&t.Name, &t.Email, &t.Mobile, &t.Hostel, &t.Room, &t.Itemname, &t.Itemtype, &t.Price, &t.Itemdescription)
+			items = append(items, t)
+			if err != nil {
+				fmt.Println(err)
+				c.JSON(500, "error while retreiving items")
+			}
+		}
+		c.JSON(200, items)
+		fmt.Println("items  sent")
+	})
 
-	// //****************** method to serve request for MENU of particular vendor
-	// r.POST("/getvendorsmenu", func(c *gin.Context) {
-	// 	var id VID
-	// 	c.BindJSON(&id)
-
-	// 	fmt.Println("\n\nRequest for retreiving vendors menu Received : \n\n")
-
-	// 	rows, err := db.Query(` SELECT  item_no, item_name, item_type, item_nature, price, item_description, imageaddress, discount
-	// 	                        from itemmenu where vendor_id = $1 `, id.Vendorid)
-
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		c.JSON(500, "error while retreiving vendors menu")
-	// 	}
-
-	// 	defer rows.Close()
-
-	// 	// var vendors = make(map[string]int)
-	// 	items := make([]item, 0)
-
-	// 	for rows.Next() {
-	// 		var t item
-	// 		err := rows.Scan(&t.Itemno, &t.Name, &t.IType, &t.Nature, &t.Price, &t.Description, &t.Image, &t.Discount)
-	// 		items = append(items, t)
-	// 		if err != nil {
-	// 			fmt.Println(err)
-	// 			c.JSON(500, "error while retreiving vendors menu")
-	// 		}
-	// 	}
-	// 	c.JSON(200, items)
-	// 	fmt.Println("Vendors Menu  sent")
-	// })
-
-	fmt.Println("\n\n\t #####     Foodies server live on :7070     #####")
+	fmt.Println("\n\n\t #####     NITH web_portal server live on :7070     #####")
 	r.Run(":7070")
 }
 
 // vendor holds the incoming requests for a vendor registration.
 type customer struct {
 	Customer_id int    `json:"customer_id,omitempty"`
-	First_name  string `json:"first_name"`
-	Last_name   string `json:"last_name"`
+	Name        string `json:"first_name"`
 	Email       string `json:"email"`
 	Mobile      string `json:"mobile"`
 	Hostel      string `json:"hostel"`
@@ -278,27 +252,6 @@ type customer struct {
 	Bid_amount  string `json:"bid_amount"`
 	Item_id     int    `json:"item_id"`
 }
-
-type VID struct {
-	Vendorid int `json:"vendorid"`
-}
-
-// type customer struct {
-// 	Customerid int      `json:"customer_id,omitempty"`
-// 	Name       string   `json:"customer_name"`
-// 	Email      string   `json:"emailid"`
-// 	Mobile     []string `json:"mobile"`
-// 	Address    string   `json:"address"`
-// 	Password   string   `json:"password"`
-// }
-
-// type CSID struct {
-// 	Customerid int `json:"customerid,omitempty"`
-// }
-
-// type MENU struct {
-// 	ITEMS []item `json:"items"`
-// }
 
 //Menu updation
 type item struct {
@@ -315,21 +268,3 @@ type item struct {
 	Itemdescription string `json:"itemdescription"`
 	Imageaddress    string `json:"imageaddress,omitempty"`
 }
-
-// //Menu updation
-// type item struct {
-// 	Vendorid    int     `json:"vendor_id"`
-// 	Itemno      int     `json:"item_no,omitempty"`
-// 	Name        string  `json:"item_name"`
-// 	IType       string  `json:"item_type"`
-// 	Nature      bool    `json:"item_nature"`
-// 	Description string  `json:"item_description"`
-// 	Price       string  `json:"price"`
-// 	Image       string  `json:"imageaddress,omitempty"`
-// 	Discount    float64 `json:"discount,omitempty"`
-// }
-
-// type VendorsToSend struct {
-// 	Vendorid   int    `json:"vendor_id"`
-// 	Vendorname string `json:"vendorname"`
-// }
