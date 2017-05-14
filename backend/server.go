@@ -38,7 +38,7 @@ func main() {
 	//*************************Hosting client.html page
 
 	r.GET("/uploaditem", func(c *gin.Context) {
-		res, _ := ioutil.ReadFile("/home/anil/major2/web/desi_carting/uploaditem.html")
+		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/uploaditem.html")
 		c.Data(200, "text/html", res)
 	})
 	//**********************fetching Javascript files file
@@ -46,7 +46,7 @@ func main() {
 		//to ser
 		jsFile := c.Param("js_file")
 
-		res, err := ioutil.ReadFile("/home/anil/major2/web/js/" + jsFile)
+		res, err := ioutil.ReadFile("/home/anil/major2/web/carting/js/" + jsFile)
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(404, "error while fetching file")
