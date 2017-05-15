@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"strconv"
 
 	"strings"
 
@@ -105,25 +104,22 @@ func main() {
 	})
 
 	// //********************Registering vendors
-	r.GET("/delitem", func(c *gin.Context) {
+	r.POST("/delitem", func(c *gin.Context) {
 		var temp temp_item
 
 		c.BindJSON(&temp)
 
-		fmt.Println("\n\nRequest Received  for to delete \n\n ")
+		// fmt.Println(" %#v   ", temp)
 
 		tx, _ := db.Begin() // tx => transaction , _ => error and execute
 
 		defer tx.Rollback() // it will be executed after the completion of local function
-		fmt.Println(temp.Item_no, temp.Password)
+
+		// fmt.Println(temp.Item_no, temp.Password)
 		// var track ID
 
-		i, err := strconv.Atoi(temp.Item_no)
+		i := 0
 
-		if err != nil {
-			i = 0
-			c.JSON(200, i)
-		}
 		// insert into users table
 		rows, err := db.Query(` SELECT  item_no, password
 		                        from item where item_no = $1 `, temp.Item_no)
@@ -135,29 +131,36 @@ func main() {
 
 		defer rows.Close()
 
-		// var vendors = make(map[string]int)
+		// fmt.Println("after retreivingvalues from database")
 
 		for rows.Next() {
 			var t temp_item
 			err := rows.Scan(&t.Item_no, &t.Password)
+			// fmt.Println(t.Item_no, t.Password)
+
 			if err != nil {
 				fmt.Println(err)
 				c.JSON(500, "error while retreiving vendors menu")
 			}
-			if strings.Compare(temp.Password, t.Password) != 0 {
+			if strings.Compare(temp.Password, t.Password) == 0 {
+				fmt.Println("exact before deletion", t.Item_no)
+				tx.Exec(` Delete   from item where item_no = $1 `, t.Item_no)
 
-				err := tx.QueryRow(` Delete   from item where item_no = $1 `, temp.Item_no)
+				commit_err := tx.Commit()
 
-				if err != nil {
+				if commit_err != nil {
+					tx.Rollback()
+					c.JSON(500, "ERRor while deletion")
+					return
+				} else {
 					fmt.Println("item deleted successfully")
-					i = 1
-					c.JSON(200, i)
+
 				}
 
 			}
 		}
 		//item deleted successfully
-		c.JSON(400, "error while deletion")
+		c.JSON(200, "error while deletion")
 	})
 
 	//I**************************tem menu updation
@@ -257,8 +260,9 @@ func main() {
 				c.JSON(500, "error while retreiving items")
 			}
 		}
-		c.JSON(200, items)
 		fmt.Println("items  sent")
+		c.JSON(200, items)
+
 	})
 
 	fmt.Println("\n\n\t #####     NITH web_portal server live on :7070     #####")
@@ -295,6 +299,6 @@ type item struct {
 }
 
 type temp_item struct {
-	Item_no  string `json:"item_no"`
+	Item_no  int    `json:"item_no"`
 	Password string `json:"password"`
 }

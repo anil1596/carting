@@ -3,12 +3,12 @@
 <html class="gr__">
     <head>
         <title>NITH Student Kart</title>
-        <link href="./css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+        <link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <!-- <script src="js/jquery.min.js"></script> -->
         <!-- Custom Theme files -->
         <!--theme-style-->
-        <link href="./css/style.css" rel="stylesheet" type="text/css" media="all">
+        <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
         <!--//theme-style-->
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -17,7 +17,7 @@
         <link href="//fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900" rel="stylesheet" type="text/css">
         <!--//fonts-->
         <!-- start menu -->
-        <link href="./css/memenu.css" rel="stylesheet" type="text/css" media="all">
+        <link href="css/memenu.css" rel="stylesheet" type="text/css" media="all">
         <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" />
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <!-- Inline CSS based on choices in "Settings" tab -->
@@ -26,44 +26,61 @@
         <!-- <script type="text/javascript" src="js/memenu.js"></script> -->
         <script type="text/javascript">
         window.onload = function() {
-             
-      fetch('/getitems', {
-          method: 'GET',
-          headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-          },
-          credentials: 'same-origin'
-      }).then(function(response) {
-
-          return response.json();
-
-      }).then(function(data) {
-       console.log(data);
-         var listitems= document.getElementById("listItems");
-                for (var i = 0; i < data.length ; i++) {
-                    listitems.innerHTML += `
-            <div class="w3-card ">
-            <pre>
-            <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
-            Item Name        : ${data[i].itemname} 
-            Item Type        : ${data[i].itemtype} 
-            Price            : ${data[i].price}
-            Item Description : ${data[i].itemdescription}
-            
-            Kindly Contact: 
-            ${data[i].name}, ${data[i].email}, ${data[i].mobile}, ${data[i].hostel}, ${data[i].room} <br>
-            </pre>
-            </div> `;
-            };
-
-      })
-          // displayItems();
+              fetch('/getitems')
+                  .then((resp) => resp.json()) // Transform the data into json
+                  .then(function(data) {
+                    // Create and append the li's to the ul
+                    console.log(data);
+                    var listitems= document.getElementById("listItems");
+                    for (var i = 0; i < data.length ; i++) {
+                            listitems.innerHTML += `
+                    <div class="w3-card ">
+                    <pre>
+                    <button class="btn btn-sm btn-danger pull-right" style="margin:5px;" onclick="delItem(${data[i].item_no});">x</button>
+                    <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
+                    Item Name        : ${data[i].itemname} 
+                    Item Type        : ${data[i].itemtype} 
+                    Price            : ${data[i].price}
+                    Item Description : ${data[i].itemdescription}
+                    
+                    Kindly Contact: 
+                    ${data[i].name}, ${data[i].email}, ${data[i].mobile}, ${data[i].hostel}, ${data[i].room} <br>
+                    </pre>
+                    </div> `;
+                    };
+                    });
         };
+
+            function delItem(itemNumber) {
+                    let pass=prompt("Enter password:");
+                    var itemToDelete = { item_no :itemNumber,
+                                         password : pass}; 
+                       
+                    console.log(itemToDelete);   
+                    fetch('/delitem', {
+                    method: 'POST',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(itemToDelete)
+                    })
+                    .then(function(resp){ 
+                        console.log(resp);
+                        if(resp.bodyUsed){
+                            let item=document.getElementById(itemNumber);
+                            item.hidden=true;
+                        }
+
+                    });
+
+            };
             // function displayItems() {
                 
             
             //     var data =[{
+            // item_no:"111",
             // itemname:"chadu",
             // itemtype:"essential",
             // price:"45",
@@ -75,6 +92,7 @@
             // room:"431"
             // },
             // {
+            // item_no:"121",
             // itemname:"chadu",
             // itemtype:"essential",
             // price:"45",
@@ -86,6 +104,7 @@
             // room:"431"
             // },
             // {
+            // item_no:"131",
             // itemname:"chadu",
             // itemtype:"essential",
             // price:"45",
@@ -99,8 +118,9 @@
             //     var listitems= document.getElementById("listItems");
             //     for (var i = 0; i < data.length ; i++) {
             //         listitems.innerHTML += `
-            // <div class="w3-card ">
+            // <div class="w3-card " id="${data[i].item_no}">
             // <pre>
+            // <button class="btn btn-danger pull-right" style="margin:5px;" onclick="delItem(${data[i].item_no});">x</button>
             // <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
             // Item Name        : ${data[i].itemname} 
             // Item Type        : ${data[i].itemtype} 
@@ -145,6 +165,7 @@
                 <!-- <div class="w3-card ">
                     <pre>
                         <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:25%;float:right">
+                        <button class="btn btn-danger pull-right" onclick="alert("del");">x</button>
                         Item Name        : Data Structure 
                         Item Type        : Books 
                         Price            : 350
@@ -165,4 +186,3 @@
         </div>
     </body>
 </html>
-
