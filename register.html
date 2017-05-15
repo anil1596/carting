@@ -39,7 +39,19 @@
                   imageaddress    : 'no_image',
                   password        : document.getElementById("password").value
                 };
-            
+                
+             if(
+                    data.name         =="" ||
+                    data.email        =="" ||
+                    data.mobile       =="" ||
+                    data.hostelName   =="" ||
+                    data.roomNo       =="" ||
+                    data.itemName     =="" ||
+                    data.itemPrice    =="" ||
+                    data.password     ==""){
+                    alert("complete the form please!!");
+                    return;   
+                }
               console.log(data);
               console.log("data sending");
                     fetch('/additems', {

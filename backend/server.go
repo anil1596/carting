@@ -233,9 +233,9 @@ func main() {
 	//****************** method to serve request for ME NU of particular vendor
 	r.GET("/getitems", func(c *gin.Context) {
 
-		fmt.Println("\n\nRequest for retreiving vendors menu Received : \n\n")
+		fmt.Println("\n\nRequest for retreiving items Received : \n\n")
 
-		rows, err := db.Query(` SELECT  name ,email , mobile , hostel , room , item_name , item_type  ,  price ,
+		rows, err := db.Query(` SELECT item_no, name ,email , mobile , hostel , room , item_name , item_type  ,  price ,
 		item_description from item `)
 
 		if err != nil {
