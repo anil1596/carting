@@ -118,15 +118,13 @@ func main() {
 		// fmt.Println(temp.Item_no, temp.Password)
 		// var track ID
 
-		i := 0
-
 		// insert into users table
 		rows, err := db.Query(` SELECT  item_no, password
 		                        from item where item_no = $1 `, temp.Item_no)
 		if err != nil {
-			i = 0
+
 			fmt.Println("error while item from database", err)
-			c.JSON(500, i)
+			c.JSON(500, 0)
 		}
 
 		defer rows.Close()
@@ -154,13 +152,13 @@ func main() {
 					return
 				} else {
 					fmt.Println("item deleted successfully")
-
+					c.JSON(222, 1)
 				}
 
 			}
 		}
 		//item deleted successfully
-		c.JSON(200, "error while deletion")
+		c.JSON(200, 0)
 	})
 
 	//I**************************tem menu updation

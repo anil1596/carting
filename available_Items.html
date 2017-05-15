@@ -34,7 +34,7 @@
                     var listitems= document.getElementById("listItems");
                     for (var i = 0; i < data.length ; i++) {
                             listitems.innerHTML += `
-                    <div class="w3-card ">
+                    <div id="${data[i].item_no}" class="w3-card ">
                     <pre>
                     <button class="btn btn-sm btn-danger pull-right" style="margin:5px;" onclick="delItem(${data[i].item_no});">x</button>
                     <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
@@ -52,6 +52,8 @@
         };
 
             function delItem(itemNumber) {
+                    var item=document.getElementById(itemNumber);
+                    console.log(item);
                     let pass=prompt("Enter password:");
                     var itemToDelete = { item_no :itemNumber,
                                          password : pass}; 
@@ -68,8 +70,9 @@
                     })
                     .then(function(resp){ 
                         console.log(resp);
-                        if(resp.bodyUsed){
-                            let item=document.getElementById(itemNumber);
+                        console.log(item);
+                        if(resp.status==222){
+                            // let item=document.getElementById(itemNumber);
                             item.hidden=true;
                         }
 
