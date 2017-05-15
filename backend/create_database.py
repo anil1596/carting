@@ -56,6 +56,7 @@ cursor.execute("""
         price text,
         item_description text ,
         imageaddress text,
+        password text,
         PRIMARY KEY(item_no)
     )
 """)

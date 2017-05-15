@@ -1,12 +1,12 @@
 <html class="gr__">
     <head>
         <title>NITH Student Kart</title>
-        <link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+        <link href="./css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="js/jquery.min.js"></script>
+        <script src="./js/jquery.min.js"></script>
         <!-- Custom Theme files -->
         <!--theme-style-->
-        <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
+        <link href="./css/style.css" rel="stylesheet" type="text/css" media="all">
         <!--//theme-style-->
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -15,47 +15,46 @@
         <link href="//fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900" rel="stylesheet" type="text/css">
         <!--//fonts-->
         <!-- start menu -->
-        <link href="css/memenu.css" rel="stylesheet" type="text/css" media="all">
+        <link href="./css/memenu.css" rel="stylesheet" type="text/css" media="all">
         <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" />
         <!-- Inline CSS based on choices in "Settings" tab -->
         <style>.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}
         </style>
-        <script type="text/javascript" src="js/memenu.js"></script>
+        <script type="text/javascript" src="./js/memenu.js"></script>
         <script type="text/javascript">
-console.log("in script")
-function sendData(){
-  console.log("in sendData();")
-    var data = {
-      // item_number     : "",
-      name            : document.getElementById("name").value,
-      email           : document.getElementById("email").value,
-      mobile          : document.getElementById("mobile").value,
-      hostel          : document.getElementById("hostelName").value,
-      room            : document.getElementById("roomNo").value,
-      itemname       : document.getElementById("itemName").value,
-      itemtype       : document.getElementById("select").value,
-      sold            : '0',
-      price           : document.getElementById("itemPrice").value,
-      itemdescription : document.getElementById("itemDescription").value,
-      imageaddress     :'nthing'
-    };
-
-  console.log(data);
-  console.log("data sending");
-  fetch('/additems', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(data)
-});
-
-  // document.getElementById("sellerForm").reset(); 
-}
-</script>
-
+            function sendData(){
+              console.log("in sendData();")
+                var data = {
+                  item_number     : "",
+                  name            : document.getElementById("name").value,
+                  email           : document.getElementById("email").value,
+                  mobile          : document.getElementById("mobile").value,
+                  hostel          : document.getElementById("hostelName").value,
+                  room            : document.getElementById("roomNo").value,
+                  itemname        : document.getElementById("itemName").value,
+                  itemtype        : document.getElementById("select").value,
+                  sold            : '0',
+                  price           : document.getElementById("itemPrice").value,
+                  itemdescription : document.getElementById("itemDescription").value,
+                  imageaddress    : 'no_image',
+                  password        : document.getElementById("password").value
+                };
+            
+              console.log(data);
+              console.log("data sending");
+                    fetch('/additems', {
+                            method: 'POST',
+                            headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                            },
+                            credentials: 'same-origin',
+                            body: JSON.stringify(data)
+                    });
+            
+            //   document.getElementById("sellerForm").reset(); 
+            }
+        </script>
     </head>
     <body data-gr-c-s-loaded="true">
         <!--header-->
@@ -85,101 +84,112 @@ function sendData(){
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                               <form method="get" id="sellerForm">
-     <div class="form-group ">
-      <label class="control-label requiredField" for="name">
-       Name
-       <span class="asteriskField">
-        *
-       </span>
-      </label>
-      <input class="form-control" id="name" name="name" placeholder="Seller name" type="text"/>
-     </div>
-     <div class="form-group ">
-      <label class="control-label requiredField" for="email">
-       Email
-       <span class="asteriskField">
-        *
-       </span>
-      </label>
-      <input class="form-control" id="email" name="email" placeholder="seller@email.com" type="text"/>
-     </div>
-     <div class="form-group ">
-      <label class="control-label requiredField" for="tel">
-       Telephone #
-       <span class="asteriskField">
-        *
-       </span>
-      </label>
-      <input class="form-control" id="mobile" name="mobile" placeholder="987654321" type="text"/>
-     </div>
-     <div class="form-group ">
-      <label class="control-label requiredField" for="hostelName">
-       Hostel Name
-       <span class="asteriskField">
-        *
-       </span>
-      </label>
-      <input class="form-control" id="hostelName" name="hostelName" placeholder="MMH" type="text"/>
-     </div>
-     <div class="form-group ">
-      <label class="control-label requiredField" for="roomNo">
-       Room No.
-       <span class="asteriskField">
-        *
-       </span>
-      </label>
-      <input class="form-control" id="roomNo" name="roomNo" placeholder="BS-1" type="text"/>
-     </div>
-     <div class="form-group ">
-      <label class="control-label requiredField" for="itemName">
-       Item Name
-       <span class="asteriskField">
-        *
-       </span>
-      </label>
-      <input class="form-control" id="itemName" name="itemName" placeholder="Data Structure " type="text"/>
-     </div>
-     <div class="form-group ">
-      <label class="control-label " for="select">
-       Item Type
-      </label>
-      <select class="select form-control" id="select" name="select">
-       <option value="Books">
-        Books
-       </option>
-       <option value="Bedding">
-        Bedding
-       </option>
-       <option value="Stationary">
-        Stationary
-       </option>
-       <option value="Essentials">
-        Essentials
-       </option>
-       <option value="Electronics">
-        Electronics
-       </option>
-       <option value="Others">
-        Others
-       </option>
-      </select>
-     </div>
-     <div class="form-group ">
-      <label class="control-label " for="itemPrice">
-       Item Price (in Rs.)
-      </label>
-      <input class="form-control" id="itemPrice" name="itemPrice" placeholder="275" type="text"/>
-     </div>
-     <div class="form-group ">
-      <label class="control-label " for="itemDescription">
-       Item Description
-      </label>
-      <textarea class="form-control" cols="40" id="itemDescription" name="itemDescripton" placeholder="Data Structure Book by Anil Kumar" rows="10"></textarea>
-     </div>
-     </div>
-    </form>
-    
+                                <form method="get" id="sellerForm">
+                                    <div class="form-group ">
+                                        <label class="control-label requiredField" for="name">
+                                        Name
+                                        <span class="asteriskField">
+                                        *
+                                        </span>
+                                        </label>
+                                        <input class="form-control" id="name" name="name" placeholder="Seller name" type="text"/>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label requiredField" for="email">
+                                        Email
+                                        <span class="asteriskField">
+                                        *
+                                        </span>
+                                        </label>
+                                        <input class="form-control" id="email" name="email" placeholder="seller@email.com" type="text"/>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label requiredField" for="tel">
+                                        Telephone #
+                                        <span class="asteriskField">
+                                        *
+                                        </span>
+                                        </label>
+                                        <input class="form-control" id="mobile" name="mobile" placeholder="987654321" type="text"/>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label requiredField" for="hostelName">
+                                        Hostel Name
+                                        <span class="asteriskField">
+                                        *
+                                        </span>
+                                        </label>
+                                        <input class="form-control" id="hostelName" name="hostelName" placeholder="MMH" type="text"/>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label requiredField" for="roomNo">
+                                        Room No.
+                                        <span class="asteriskField">
+                                        *
+                                        </span>
+                                        </label>
+                                        <input class="form-control" id="roomNo" name="roomNo" placeholder="BS-1" type="text"/>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label requiredField" for="itemName">
+                                        Item Name
+                                        <span class="asteriskField">
+                                        *
+                                        </span>
+                                        </label>
+                                        <input class="form-control" id="itemName" name="itemName" placeholder="Data Structure " type="text"/>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label " for="select">
+                                        Item Type
+                                        </label>
+                                        <select class="select form-control" id="select" name="select">
+                                            <option value="Books">
+                                                Books
+                                            </option>
+                                            <option value="Bedding">
+                                                Bedding
+                                            </option>
+                                            <option value="Stationary">
+                                                Stationary
+                                            </option>
+                                            <option value="Essentials">
+                                                Essentials
+                                            </option>
+                                            <option value="Electronics">
+                                                Electronics
+                                            </option>
+                                            <option value="Others">
+                                                Others
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label requiredField" for="itemPrice">
+                                        Item Price (in Rs.)
+                                        <span class="asteriskField">
+                                        *
+                                        </span>
+                                        </label>
+                                        <input class="form-control" id="itemPrice" name="itemPrice" placeholder="275" type="text" required="" />
+                                    <div class="form-group ">
+                                        <label class="control-label " for="itemDescription">
+                                        Item Description
+                                        </label>
+                                        <textarea class="form-control" cols="40" id="itemDescription" name="itemDescripton" placeholder="Data Structure Book by Anil Kumar" rows="10"></textarea>
+                                    </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="control-label requiredField" for="itemPrice">
+                                        Password 
+                                        <span class="asteriskField">
+                                        *
+                                        </span>
+                                        </label>
+                                        <input class="form-control" id="password" name="password" placeholder="" type="password" required />
+                                    </div>
+                            </div>
+                            </form>
                         </div>
                         <button class="btn btn-primary " onclick="sendData();">
                         Submit

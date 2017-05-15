@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	"strings"
 
@@ -104,35 +105,60 @@ func main() {
 	})
 
 	// //********************Registering vendors
-	// r.POST("/registervendor", func(c *gin.Context) {
-	// 	var ven vendor
+	r.GET("/delitem", func(c *gin.Context) {
+		var temp temp_item
 
-	// 	c.BindJSON(&ven)
+		c.BindJSON(&temp)
 
-	// 	fmt.Println("\n\nRequest Received  for vendor registration: \n\n ")
+		fmt.Println("\n\nRequest Received  for to delete \n\n ")
 
-	// 	tx, _ := db.Begin() // tx => transaction , _ => error and execute
+		tx, _ := db.Begin() // tx => transaction , _ => error and execute
 
-	// 	defer tx.Rollback() // it will be executed after the completion of local function
-	// 	fmt.Println(ven.Owner, ven.Name, ven.Email, ven.Mobile, ven.Address, ven.Image, ven.Description, ven.Offer, ven.Password)
-	// 	// var track ID
-	// 	var num VID
-	// 	// insert into users table
-	// 	err := tx.QueryRow(`
-	//     INSERT INTO vendors (owner, vendorname, email ,mobile ,address  ,imageaddress ,description,offer, password ) values ($1, $2, $3, $4, $5, $6, $7,$8,$9) returning vendorid
-	//       `, ven.Owner, ven.Name, ven.Email, ven.Mobile, ven.Address, ven.Image, ven.Description, ven.Offer, ven.Password).Scan(&num.Vendorid)
-	// 	fmt.Println(err)
-	// 	commit_err := tx.Commit()
+		defer tx.Rollback() // it will be executed after the completion of local function
+		fmt.Println(temp.Item_no, temp.Password)
+		// var track ID
 
-	// 	if commit_err != nil {
-	// 		tx.Rollback()
-	// 		c.JSON(500, "ERR")
-	// 		return
-	// 	}
-	// 	fmt.Println("Vendor registered and his ID:", num)
-	// 	c.JSON(200, num)
+		i, err := strconv.Atoi(temp.Item_no)
 
-	// })
+		if err != nil {
+			i = 0
+			c.JSON(200, i)
+		}
+		// insert into users table
+		rows, err := db.Query(` SELECT  item_no, password
+		                        from item where item_no = $1 `, temp.Item_no)
+		if err != nil {
+			i = 0
+			fmt.Println("error while item from database", err)
+			c.JSON(500, i)
+		}
+
+		defer rows.Close()
+
+		// var vendors = make(map[string]int)
+
+		for rows.Next() {
+			var t temp_item
+			err := rows.Scan(&t.Item_no, &t.Password)
+			if err != nil {
+				fmt.Println(err)
+				c.JSON(500, "error while retreiving vendors menu")
+			}
+			if strings.Compare(temp.Password, t.Password) != 0 {
+
+				err := tx.QueryRow(` Delete   from item where item_no = $1 `, temp.Item_no)
+
+				if err != nil {
+					fmt.Println("item deleted successfully")
+					i = 1
+					c.JSON(200, i)
+				}
+
+			}
+		}
+		//item deleted successfully
+		c.JSON(400, "error while deletion")
+	})
 
 	//I**************************tem menu updation
 	r.POST("/additems", func(c *gin.Context) {
@@ -141,7 +167,8 @@ func main() {
 		fmt.Println("\n\nRequest Received for Adding items: \n\n ")
 		c.BindJSON(&val)
 
-		// fmt.Printf("%#v", menu)
+		fmt.Printf("%#v", val)
+
 		tx, _ := db.Begin() // tx => transaction , _ => error and execute
 
 		defer tx.Rollback() // it will be executed after the completion of local function
@@ -149,15 +176,11 @@ func main() {
 		fmt.Println("vals:", val.Item_no, val.Name, val.Email, val.Mobile, val.Hostel, val.Room,
 			val.Itemname, val.Itemtype, val.Sold, val.Price, val.Itemdescription, val.Imageaddress)
 
-		// temp := "anil"
-		// _, err := tx.Exec(`INSERT INTO item (name ,email , mobile , hostel , room , item_name , item_type  , sold , price ,
-		// item_description, imageaddress  ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) `, temp, temp, temp, temp, temp, temp, temp, false, temp, temp, temp)
-
 		var item_num int
 
 		err := tx.QueryRow(`INSERT INTO item (name ,email , mobile , hostel , room , item_name , item_type  , sold , price ,
-		item_description, imageaddress  ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning item_no`, val.Name, val.Email, val.Mobile,
-			val.Hostel, val.Room, val.Itemname, val.Itemtype, false, val.Price, val.Itemdescription, val.Imageaddress).Scan(&item_num)
+		item_description, imageaddress,password ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning item_no`, val.Name, val.Email, val.Mobile,
+			val.Hostel, val.Room, val.Itemname, val.Itemtype, false, val.Price, val.Itemdescription, val.Imageaddress, val.Password).Scan(&item_num)
 
 		if err != nil {
 			// c.JSON(500, "error")
@@ -227,7 +250,7 @@ func main() {
 
 		for rows.Next() {
 			var t item
-			err := rows.Scan(&t.Name, &t.Email, &t.Mobile, &t.Hostel, &t.Room, &t.Itemname, &t.Itemtype, &t.Price, &t.Itemdescription)
+			err := rows.Scan(&t.Item_no, &t.Name, &t.Email, &t.Mobile, &t.Hostel, &t.Room, &t.Itemname, &t.Itemtype, &t.Price, &t.Itemdescription)
 			items = append(items, t)
 			if err != nil {
 				fmt.Println(err)
@@ -268,4 +291,10 @@ type item struct {
 	Price           string `json:"price"`
 	Itemdescription string `json:"itemdescription"`
 	Imageaddress    string `json:"imageaddress,omitempty"`
+	Password        string `json:"password"`
+}
+
+type temp_item struct {
+	Item_no  string `json:"item_no"`
+	Password string `json:"password"`
 }
