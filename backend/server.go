@@ -230,7 +230,7 @@ func main() {
 
 	})
 
-	//****************** method to serve request for ME NU of particular vendor
+	//****************** method for retreiving all available_Items
 	r.GET("/getitems", func(c *gin.Context) {
 
 		fmt.Println("\n\nRequest for retreiving items Received : \n\n")
@@ -262,6 +262,38 @@ func main() {
 
 	})
 
+	//****************** method for retreiving selected Items
+	r.GET("/getSelectedItems", func(c *gin.Context) {
+
+		fmt.Println("\n\nRequest for retreiving selected items Received : \n\n")
+		var temp itemType
+		c.BindJSON(&temp)
+		rows, err := db.Query(` SELECT item_no, name ,email , mobile , hostel , room , item_name , item_type  ,  price ,
+		item_description from item where item_type = $1 `, temp.Type)
+
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(500, "error while retreiving vendors menu")
+		}
+
+		defer rows.Close()
+
+		// var vendors = make(map[string]int)
+		items := make([]item, 0)
+
+		for rows.Next() {
+			var t item
+			err := rows.Scan(&t.Item_no, &t.Name, &t.Email, &t.Mobile, &t.Hostel, &t.Room, &t.Itemname, &t.Itemtype, &t.Price, &t.Itemdescription)
+			items = append(items, t)
+			if err != nil {
+				fmt.Println(err)
+				c.JSON(500, "error while retreiving items")
+			}
+		}
+		fmt.Println("items  sent")
+		c.JSON(200, items)
+
+	})
 	fmt.Println("\n\n\t #####     NITH web_portal server live on :7070     #####")
 	r.Run(":7070")
 }
@@ -298,4 +330,8 @@ type item struct {
 type temp_item struct {
 	Item_no  int    `json:"item_no"`
 	Password string `json:"password"`
+}
+
+type itemType struct {
+	Type string `json:"type"`
 }
