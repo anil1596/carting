@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-
 	"strings"
 
 	"github.com/gin-gonic/gin"
