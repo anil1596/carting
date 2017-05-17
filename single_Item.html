@@ -1,0 +1,197 @@
+
+
+<html class="gr__">
+    <head>
+        <title>NITH Student Kart</title>
+        <link href="./css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <!-- <script src="js/jquery.min.js"></script> -->
+        <!-- Custom Theme files -->
+        <!--theme-style-->
+        <link href="./css/style.css" rel="stylesheet" type="text/css" media="all">
+        <!--//theme-style-->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <!--fonts-->
+        <link href="//fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet" type="text/css">
+        <link href="//fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900" rel="stylesheet" type="text/css">
+        <!--//fonts-->
+        <!-- start menu -->
+        <link href="./css/memenu.css" rel="stylesheet" type="text/css" media="all">
+        <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" />
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <!-- Inline CSS based on choices in "Settings" tab -->
+        <style>.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}
+        </style>
+        <!-- <script type="text/javascript" src="js/memenu.js"></script> -->
+        <script type="text/javascript">
+        window.onload = function() {
+                var clickedItem = localStorage.getItem('item');
+                var itemTitle = document.getElementById("itemTitle");
+                itemTitle.innerText += " "+clickedItem;
+                // alert(clickeditem);
+
+             fetch('/getitems')
+                  .then((resp) => resp.json()) // Transform the data into json
+                  .then(function(data) {
+                    // Create and append the li's to the ul
+                    console.log(data);
+                    var listitems= document.getElementById("listItems");
+                    for (var i = 0; i < data.length ; i++) {
+                        if(data[i].itemtype != clickedItem){
+                            continue;
+                        }
+                            listitems.innerHTML += `
+                    <div id="${data[i].item_no}" class="w3-card ">
+                    <pre>
+                    <button class="btn btn-sm btn-danger pull-right" style="margin:5px;" onclick="delItem(${data[i].item_no});">x</button>
+                    <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
+                    Item Name        : ${data[i].itemname} 
+                    Item Type        : ${data[i].itemtype} 
+                    Price            : ${data[i].price}
+                    Item Description : ${data[i].itemdescription}
+                    
+                    Kindly Contact: 
+                    ${data[i].name}, ${data[i].email}, ${data[i].mobile}, ${data[i].hostel}, ${data[i].room} <br>
+                    </pre>
+                    </div> `;
+                    };
+                    });
+        };
+
+            function delItem(itemNumber) {
+                    let password=prompt("Enter password:");
+                    let itemToDelete = { itemNumber : password} 
+                    fetch('/delitem', {
+                    method: 'GET',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(itemToDelete)
+                    })
+                    .then(function(resp){ 
+                        console.log(resp);
+                        if(resp.value){
+                            let item=document.getElementById(itemNumber);
+                            item.hidden=true;
+                        }
+
+                    });
+
+            };
+            // function displayItems() {
+                
+            
+            //     var data =[{
+            // item_no:"111",
+            // itemname:"chadu",
+            // itemtype:"essential",
+            // price:"45",
+            // itemdescription:"sfai",
+            // name:"anil",
+            // email:"abs@cd.c",
+            // mobile:"0393030",
+            // hostel:"mmh",
+            // room:"431"
+            // },
+            // {
+            // item_no:"121",
+            // itemname:"chadu",
+            // itemtype:"essential",
+            // price:"45",
+            // itemdescription:"sfai",
+            // name:"anil",
+            // email:"abs@cd.c",
+            // mobile:"0393030",
+            // hostel:"mmh",
+            // room:"431"
+            // },
+            // {
+            // item_no:"131",
+            // itemname:"chadu",
+            // itemtype:"essential",
+            // price:"45",
+            // itemdescription:"sfai",
+            // name:"anil",
+            // email:"abs@cd.c",
+            // mobile:"0393030",
+            // hostel:"mmh",
+            // room:"431"
+            // }];
+            //     var listitems= document.getElementById("listItems");
+            //     for (var i = 0; i < data.length ; i++) {
+            //         listitems.innerHTML += `
+            // <div class="w3-card " id="${data[i].item_no}">
+            // <pre>
+            // <button class="btn btn-danger pull-right" style="margin:5px;" onclick="delItem(${data[i].item_no});">x</button>
+            // <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
+            // Item Name        : ${data[i].itemname} 
+            // Item Type        : ${data[i].itemtype} 
+            // Price            : ${data[i].price}
+            // Item Description : ${data[i].itemdescription}
+            
+            // Kindly Contact: 
+            // ${data[i].name}, ${data[i].email}, ${data[i].mobile}, ${data[i].hostel}, ${data[i].room} <br>
+            // </pre>
+            // </div> `;
+            // };
+            // }
+        </script>
+    </head>
+    <body data-gr-c-s-loaded="true">
+        <!--header-->
+        <div class="header">
+            <div class="header-top">
+                <div class="container">
+                    <div class="social">
+                        <h3>NITH STUDENT KART</h3>
+                    </div>
+                    <div class="header-left">
+                        <div class="clearfix"> </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+            </div>
+        </div>
+        <!-- grow -->
+        <div class="grow">
+            <div class="container">             
+                <div>
+                <a class=" pull-right" style="color: #fff; font-size:21px;" href="main">Home</a>
+                </div>
+                <h2 id="itemTitle">Available  </h2>
+            </div>
+        </div>
+
+        <div class="bootstrap-iso">
+            <!-- <div class="container-fluid"> -->
+            <!-- <div class="row"> -->
+            <div id="listItems" class="w3-container" style="margin: 2% 10%;">
+                <!-- <div class="w3-card ">
+                    <pre>
+                        <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:25%;float:right">
+                        <button class="btn btn-danger pull-right" onclick="alert("del");">x</button>
+                        Item Name        : Data Structure 
+                        Item Type        : Books 
+                        Price            : 350
+                        Item Description : good book
+
+                        Kindly Contact: 
+                        Anil, anil@kumar.com 9805804603, MMH, bd1<br>
+                    </pre>
+                </div> -->
+            </div>
+            <!-- <button class="btn btn-primary " onclick="displayItems();">Submit</button></div> -->
+
+        <!--//content-->
+        <div class="footer w3layouts">
+            <div class="footer-class w3-agile">
+                <p>© 2017 STORE. All Rights Reserved | Made at  <a href="http://w3layouts.com/" target="_blank">NITH</a> </p>
+            </div>
+        </div>
+    </body>
+</html>
+

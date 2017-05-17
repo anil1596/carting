@@ -25,6 +25,14 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 <script src="./js/simpleCart.min.js"> </script>
 
 	<script>
+	function loadItem(item){
+		localStorage.setItem('item', item);
+		console.log("item stored :",item);
+		let sitem=localStorage.getItem('item');
+		console.log("current Item : ", sitem);
+	}
+
+
 		    function loadAvailableItems() {
                  $("#content").load("available_Items");
         }
@@ -81,9 +89,9 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 				<ul class="memenu skyblue">
 					  <li><a class="color8" href="main">Home</a></li>
 						
-				      <li><a class="color1" href="#">Bedding</a>
-				      	<div class="mepanel" style= "left:100px">
-						<div class="row">
+				      <li onclick="loadItem('Bedding');"><a class="color1" href="single_Item">Bedding</a>
+				      	<!-- <div class="mepanel" style= "left:100px"> -->
+<!-- 						<div class="row">
 					
 							<div class="col2">
 								<div class="h_nav">
@@ -98,15 +106,15 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 							</div>
 							
 						  </div>
-						</div>
+						</div> -->
 					</li>
-					<li><a class="color8">Books</a></li>
+					<li><a onclick="loadItem('Books');" href="single_Item" class="color8">Books</a></li>
 				
-				    <li class="grid"><a class="color2" href="#">Stationary</a>
-					  	<div class="mepanel" style= "left:460px">
-						<div class="row">
+				    <li onclick="loadItem('Stationary')" class="grid"><a class="color2" href="single_Item">Stationary</a>
+					  	<!--<div class="mepanel" style= "left:460px">-->
+						<!--<div <class></class>="row">-->
 							
-							<div class="col1">
+						<!-- 	<div class="col1">
 								<div class="h_nav">
 									
 									<ul>
@@ -115,12 +123,13 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 										<li><a href="products.html">Notes</a></li>
 									</ul>	
 								</div>												
-							</div>
-						  </div>
-						</div>
+							</div> -->
+						  <!--</div>-->
+						<!--</div>-->
 			    </li>
 					<li><a href="register" class="color8">Upload Item</a></li>
 			    	<li><a href="available_Items"  class="color8" >Available Items</a></li>
+			    	<!-- <li><a href="single_Item.html"  class="color8" >Available Items</a></li> -->
 				<!--li><a class="color4" href="login.html">Login</a></li-->				
 				<!--li><a class="color6" href="contact.html">Contact</a></li-->
 			  </ul> 
@@ -324,7 +333,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 			</div>
 					
 				</div>-->
-				<div class="col-md-3 amet-sed agileits-w3layouts">
+				<div class="col-md-3 amet-sed agileits-w3layouts" style= "margin-left:41%">
 				<h4>CONTACT US</h4>
 					<p>NIT Hamirpur</p>
 					<p>Hamipur Himanchal Pradesh</p>

@@ -40,7 +40,10 @@ func main() {
 		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/available_Items.html")
 		c.Data(200, "text/html", res)
 	})
-
+	r.GET("/single_Item", func(c *gin.Context) {
+		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/single_Item.html")
+		c.Data(200, "text/html", res)
+	})
 	r.GET("/main", func(c *gin.Context) {
 		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/index.html")
 		c.Data(200, "text/html", res)
