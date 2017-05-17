@@ -45,10 +45,10 @@
                     <div id="${data[i].item_no}" class="w3-card ">
                     <pre>
                     <button class="btn btn-sm btn-danger pull-right" style="margin:5px;" onclick="delItem(${data[i].item_no});">x</button>
-                    <img src="https://www.w3schools.com/w3css/img_lights.jpg" class="w3-round-small" alt="Norway" style="width:30%;float:right">
-                    Item Name        : ${data[i].itemname} 
-                    Item Type        : ${data[i].itemtype} 
-                    Price            : ${data[i].price}
+                    <img src="./images/${data[i].itemtype}.jpg" height="35%" class="w3-round-small" alt="Norway" style="width:30%;float:right">
+                    Item Name        : <b>${data[i].itemname} </b>
+                    Item Type        : <b>${data[i].itemtype} </b>
+                    Price            : <b>${data[i].price}</b>
                     Item Description : ${data[i].itemdescription}
                     
                     Kindly Contact: 

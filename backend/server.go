@@ -37,7 +37,7 @@ func main() {
 	//*************************Hosting client.html page
 
 	r.GET("/available_Items", func(c *gin.Context) {
-		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/available_Items.html")
+		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/products.html")
 		c.Data(200, "text/html", res)
 	})
 	r.GET("/single_Item", func(c *gin.Context) {
