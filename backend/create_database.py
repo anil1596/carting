@@ -3,21 +3,33 @@ import random
 import requests
 import json
 
-postgres = psycopg2.connect(database = 'web_portal', host = 'localhost', user = 'anil', password = 'anil205474')
+postgres = psycopg2.connect(database = 'web_portal', host = 'localhost', user = 'postgres', password = 'anil205474')
 cursor = postgres.cursor()
 
 cursor.execute("""
-   select exists(select 0 from pg_class where relname = 'customer')
+   select exists(select 0 from pg_class where relname = 'admin')
 """)
 
 presence = cursor.fetchone()[0]
 
 if presence:
-    print('customer table exists')
+    print('admin table exists')
     cursor.execute("""
-        drop table customer
+        drop table admin
     """)
 
+cursor.execute("""
+   select exists(select 0 from pg_class where relname = 'students')
+""")
+
+presence = cursor.fetchone()[0]
+
+if presence:
+    print('students table exists')
+    cursor.execute("""
+        drop table students
+    """)
+    
 cursor.execute("""
    select exists(select 0 from pg_class where relname = 'item')
 """)
@@ -45,6 +57,7 @@ except Exception as e:
 cursor.execute("""
     create table item(
         item_no bigserial  ,
+        roll_no int,
         name text ,
         email text ,
         mobile text ,
@@ -69,43 +82,20 @@ except Exception as e:
     print(e)
 
 
-#                       CREATE TABLE CUSTOMER                                         #
-cursor.execute("""
-    create table customer(
-        customer_id bigserial PRIMARY KEY,
-        name text NOT NULL,
-        email text NOT NULL,
-        mobile text,
-        hostel text NOT NULL,
-        room text NOT NULL,
-        bid_amount text NOT NULL,
-        item_id int NOT NULL references item(item_no)
-    )
-""")
-
-#                       COMMIT AND ROLLBACK IF EXCEPTION                             #
-try:
-    postgres.commit()
-except Exception as e:
-    postgres.rollback()
-    print(e)
-
-
-# #                       CREATE TABLE ITEMS                                      #
+# #                       CREATE TABLE CUSTOMER                                         #
 # cursor.execute("""
-#     create table item(
-#         seller_id int NOT NULL references seller(seller_id),
-#         item_no bigserial  ,
-#         item_name text NOT NULL,
-#         item_type varchar(10) NOT NULL CHECK(item_type in ('starter','main','desert')) ,
-#         sold boolean NOT NULL ,
-#         price text NOT NULL,
-#         item_description text NOT NULL,
-#         imageaddress text,
-#         discount double precision,
-#         PRIMARY KEY(seller_id, item_no)
+#     create table customer(
+#         customer_id bigserial PRIMARY KEY,
+#         name text NOT NULL,
+#         email text NOT NULL,
+#         mobile text,
+#         hostel text NOT NULL,
+#         room text NOT NULL,
+#         bid_amount text NOT NULL,
+#         item_id int NOT NULL references item(item_no)
 #     )
 # """)
+
 # #                       COMMIT AND ROLLBACK IF EXCEPTION                             #
 # try:
 #     postgres.commit()
@@ -113,4 +103,35 @@ except Exception as e:
 #     postgres.rollback()
 #     print(e)
 
+
+#                       CREATE TABLE STUDENTS                                      #
+cursor.execute("""
+    create table students(
+        roll_no int NOT NULL ,
+        password text NOT NULL,
+        block boolean NOT NULL,
+        PRIMARY KEY(roll_no)
+    )
+""")
+#                       COMMIT AND ROLLBACK IF EXCEPTION                             #
+try:
+    postgres.commit()
+except Exception as e:
+    postgres.rollback()
+    print(e)
+
+#                       CREATE TABLE ADMINS                                      #
+cursor.execute("""
+    create table admin(
+        employee_no int NOT NULL ,
+        password text NOT NULL,
+        PRIMARY KEY(employee_no)
+    )
+""")
+#                       COMMIT AND ROLLBACK IF EXCEPTION                             #
+try:
+    postgres.commit()
+except Exception as e:
+    postgres.rollback()
+    print(e)
 
