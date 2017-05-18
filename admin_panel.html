@@ -81,6 +81,19 @@
                         blockstatus=0;
                    }
 
+                       var tableRef = document.getElementById("userTable");
+                       var newRow = tableRef.insertRow(0);
+                       let totalval = 0;
+                     newRow.id = `${rollno}`;
+                      newRow.innerHTML = `
+                        <td>${rollno}</td>
+                        <td>${pass}</td>
+                        <td>${blockstatus}</td>
+                        <td>${totalval}</td>
+                        <td>
+                             <button onclick="deleteUser(${rollno});" type="button" name="" tabindex="2" class="btn btn-danger">DELETE</button>
+                             <button onclick="blockUser(${rollno});" type="button" name="" tabindex="2" class="btn btn-success">TOGGLE BLOCK</button>
+                        </td>`;
                         let studentToAdd = {roll_no : rollno, password : pass , block : blockstatus};
                         
                         fetch('/addStudent', {
@@ -94,20 +107,11 @@
                         })
                         .then(function(resp){ 
                             console.log(resp);
+                            //  console.log(resp.status);
                        if(resp.status==222){
-                       var tableRef = document.getElementById("userTable");
-                       var newRow = tableRef.insertRow(0);
-                     newRow.id = `${rollno}`;
-                      newRow.innerHTML = `
-                        <td>${rollno}</td>
-                        <td>${pass}</td>
-                        <td>${blockstatus}</td>
-                        <td>
-                             <button onclick="deleteUser(${rollno});" type="button" name="" tabindex="2" class="btn btn-danger">DELETE</button>
-                             <button onclick="blockUser(${rollno});" type="button" name="" tabindex="2" class="btn btn-success">TOGGLE BLOCK</button>
-                        </td>`;
+                           
                        } 
-                            console.log("student added");
+                            // console.log("student added");
                             });
             
                     }
@@ -226,6 +230,8 @@
                             </form>
                         </td>
                         <td>
+                            </td>
+                        <td>
                             <button onclick="addUser()" type="button" name="" tabindex="2" class="btn btn-primary">ADD</button>
                         </td>
                     </tr>
@@ -234,7 +240,7 @@
         </div>
         <div class="footer w3layouts" style=" bottom:0px; position:fixed;margin-bottom:0px;left:0px; right:0px;">
             <div class="footer-class w3-agile">
-                <p>© 2017 STORE. All Rights Reserved | Made at  <a href="" target="_blank">NITH</a> </p>
+                <p>© 2017 STORE. All Rights Reserved | Made at  <a href="https://github.com/anil1596/carting" target="_blank">NITH</a> </p>
             </div>
         </div>
     </body>

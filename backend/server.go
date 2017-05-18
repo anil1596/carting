@@ -379,31 +379,27 @@ func main() {
 
 		fmt.Println("\n\nRequest to add student Received : \n\n")
 		var val student
-		var rol int
+		// var rol int
 		c.BindJSON(&val)
-		fmt.Println("%#v", val)
+		fmt.Println(val.Roll_no, val.Password, val.Block, val.Total)
+
 		tx, _ := db.Begin() // tx => transaction , _ => error and execute
 
 		defer tx.Rollback() // it will be executed after the completion of local function
 
-		err := tx.QueryRow(`INSERT INTO students (roll_no,password,block ) values ($1,$2,$3) returning roll_no`,
-			val.Roll_no, val.Password, val.Block).Scan(&rol)
+		_, err := tx.Exec(`INSERT INTO students (roll_no,password,block) values ($1,$2,$3) `,
+			val.Roll_no, val.Password, val.Block)
+
+		err = tx.Commit()
 
 		if err != nil {
-			c.JSON(500, "error while adding student ")
-			return
-		}
-
-		commit_err := tx.Commit()
-
-		if commit_err != nil {
 			tx.Rollback()
-			fmt.Println("error while committing \n\n")
 			c.JSON(500, "ERR")
 			return
 		}
+		fmt.Println("Added student")
 		c.JSON(222, "student added")
-
+		return
 	})
 	r.POST("/alterStudent", func(c *gin.Context) {
 
