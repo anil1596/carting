@@ -57,7 +57,7 @@ except Exception as e:
 cursor.execute("""
     create table item(
         item_no bigserial  ,
-        roll_no int,
+        roll_no text,
         name text ,
         email text ,
         mobile text ,
@@ -107,9 +107,10 @@ except Exception as e:
 #                       CREATE TABLE STUDENTS                                      #
 cursor.execute("""
     create table students(
-        roll_no int NOT NULL ,
+        roll_no text NOT NULL ,
         password text NOT NULL,
         block boolean NOT NULL,
+        total int default 0,
         PRIMARY KEY(roll_no)
     )
 """)
@@ -123,7 +124,7 @@ except Exception as e:
 #                       CREATE TABLE ADMINS                                      #
 cursor.execute("""
     create table admin(
-        employee_no int NOT NULL ,
+        employee_no text NOT NULL ,
         password text NOT NULL,
         PRIMARY KEY(employee_no)
     )

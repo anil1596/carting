@@ -44,6 +44,14 @@ func main() {
 		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/single_Item.html")
 		c.Data(200, "text/html", res)
 	})
+	r.GET("/admin_login", func(c *gin.Context) {
+		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/admin_login.html")
+		c.Data(200, "text/html", res)
+	})
+	r.GET("/admin_panel", func(c *gin.Context) {
+		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/admin_panel.html")
+		c.Data(200, "text/html", res)
+	})
 	r.GET("/main", func(c *gin.Context) {
 		res, _ := ioutil.ReadFile("/home/anil/major2/web/carting/index.html")
 		c.Data(200, "text/html", res)
@@ -117,12 +125,7 @@ func main() {
 
 		defer tx.Rollback() // it will be executed after the completion of local function
 
-		// fmt.Println(temp.Item_no, temp.Password)
-		// var track ID
-
-		// insert into users table
-		rows, err := db.Query(` SELECT  item_no, password
-		                        from item where item_no = $1 `, temp.Item_no)
+		rows, err := db.Query(` SELECT  *  from item where item_no = $1 `, temp.Item_no)
 		if err != nil {
 
 			fmt.Println("error while item from database", err)
@@ -134,8 +137,10 @@ func main() {
 		// fmt.Println("after retreivingvalues from database")
 
 		for rows.Next() {
-			var t temp_item
-			err := rows.Scan(&t.Item_no, &t.Password)
+			var t item
+			err := rows.Scan(&t.Item_no, &t.Roll_no, &t.Name, &t.Email, &t.Mobile, &t.Hostel,
+				&t.Room, &t.Itemname, &t.Itemtype, &t.Sold, &t.Price, &t.Itemdescription, &t.Imageaddress, &t.Password)
+
 			// fmt.Println(t.Item_no, t.Password)
 
 			if err != nil {
@@ -143,9 +148,12 @@ func main() {
 				c.JSON(500, "error while retreiving vendors menu")
 			}
 			if strings.Compare(temp.Password, t.Password) == 0 {
+
 				fmt.Println("exact before deletion", t.Item_no)
+
 				tx.Exec(` Delete   from item where item_no = $1 `, t.Item_no)
 
+				tx.Exec(`UPDATE students SET total = total-1 where roll_no= $1`, t.Roll_no)
 				commit_err := tx.Commit()
 
 				if commit_err != nil {
@@ -173,7 +181,7 @@ func main() {
 		fmt.Println("vals:", val.Item_no, val.Name, val.Roll_no, val.Email, val.Mobile, val.Hostel, val.Room,
 			val.Itemname, val.Itemtype, val.Sold, val.Price, val.Itemdescription, val.Imageaddress)
 
-		rows, err := db.Query(` SELECT roll_no, password ,block from item where roll_no = $1 `, val.Roll_no)
+		rows, err := db.Query(` SELECT roll_no, password ,block,total from students where roll_no = $1 `, val.Roll_no)
 
 		if err != nil {
 			fmt.Println(err)
@@ -181,18 +189,18 @@ func main() {
 		}
 
 		defer rows.Close()
-
+		// roll, err := strconv.Atoi(val.Roll_no)
 		for rows.Next() {
 			var t student
-			err := rows.Scan(&t.Roll_no, &t.Password)
-			// fmt.Println(t.Item_no, t.Password)
+			err := rows.Scan(&t.Roll_no, &t.Password, &t.Block, &t.Total)
+			fmt.Println(t.Roll_no, t.Password)
 
 			if err != nil {
 				fmt.Println(err)
 				c.JSON(500, "error while retreiving vendors menu")
 			}
 
-			if val.Roll_no == t.Roll_no && strings.Compare(val.Password, t.Password) == 0 && t.Block == false {
+			if strings.Compare(val.Roll_no, t.Roll_no) == 0 && strings.Compare(val.Password, t.Password) == 0 && t.Block == false {
 				fmt.Println("student verified", t.Roll_no)
 
 				tx, _ := db.Begin() // tx => transaction , _ => error and execute
@@ -210,8 +218,12 @@ func main() {
 					fmt.Println("error while adding \n\n", err)
 				}
 
+				_, err = tx.Exec(`UPDATE students SET total = $1 where roll_no= $2`, t.Total+1, t.Roll_no)
+				if err != nil {
+					fmt.Println(err)
+					c.JSON(500, "error while updating student")
+				}
 				commit_err := tx.Commit()
-
 				if commit_err != nil {
 					tx.Rollback()
 					fmt.Println("error while committing \n\n")
@@ -219,6 +231,7 @@ func main() {
 					c.JSON(500, "ERR")
 					return
 				}
+				fmt.Println("item added successfully")
 				c.JSON(222, 1)
 			}
 		}
@@ -234,7 +247,7 @@ func main() {
 
 		fmt.Println("\n\nRequest for retreiving items Received : \n\n")
 
-		rows, err := db.Query(` SELECT item_no, name ,email , mobile , hostel , room , item_name , item_type  ,  price ,
+		rows, err := db.Query(` SELECT item_no,roll_no, name ,email , mobile , hostel , room , item_name , item_type  ,  price ,
 		item_description from item `)
 
 		if err != nil {
@@ -249,7 +262,7 @@ func main() {
 
 		for rows.Next() {
 			var t item
-			err := rows.Scan(&t.Item_no, &t.Name, &t.Email, &t.Mobile, &t.Hostel, &t.Room, &t.Itemname, &t.Itemtype, &t.Price, &t.Itemdescription)
+			err := rows.Scan(&t.Item_no, &t.Roll_no, &t.Name, &t.Email, &t.Mobile, &t.Hostel, &t.Room, &t.Itemname, &t.Itemtype, &t.Price, &t.Itemdescription)
 			items = append(items, t)
 			if err != nil {
 				fmt.Println(err)
@@ -260,6 +273,37 @@ func main() {
 		c.JSON(200, items)
 
 	})
+	//************function to retreive all students
+	r.GET("/getstudents", func(c *gin.Context) {
+
+		fmt.Println("\n\nRequest for retreiving students Received : \n\n")
+
+		rows, err := db.Query(` SELECT roll_no,password,block,total from students `)
+
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(500, "error while retreiving vendors menu")
+		}
+
+		defer rows.Close()
+
+		// var vendors = make(map[string]int)
+		items := make([]student, 0)
+
+		for rows.Next() {
+			var t student
+			err := rows.Scan(&t.Roll_no, &t.Password, &t.Block, &t.Total)
+			items = append(items, t)
+			if err != nil {
+				fmt.Println(err)
+				c.JSON(500, "error while retreiving items")
+			}
+		}
+		fmt.Println("students sent %#v", items)
+
+		c.JSON(200, items)
+
+	})
 
 	//****************** method for retreiving selected Items
 	r.GET("/getSelectedItems", func(c *gin.Context) {
@@ -267,7 +311,7 @@ func main() {
 		fmt.Println("\n\nRequest for retreiving selected items Received : \n\n")
 		var temp itemType
 		c.BindJSON(&temp)
-		rows, err := db.Query(` SELECT item_no, name ,email , mobile , hostel , room , item_name , item_type  ,  price ,
+		rows, err := db.Query(` SELECT item_no,roll_no, name ,email , mobile , hostel , room , item_name , item_type  ,  price ,
 		item_description from item where item_type = $1 `, temp.Type)
 
 		if err != nil {
@@ -282,7 +326,7 @@ func main() {
 
 		for rows.Next() {
 			var t item
-			err := rows.Scan(&t.Item_no, &t.Name, &t.Email, &t.Mobile, &t.Hostel, &t.Room, &t.Itemname, &t.Itemtype, &t.Price, &t.Itemdescription)
+			err := rows.Scan(&t.Item_no, &t.Roll_no, &t.Name, &t.Email, &t.Mobile, &t.Hostel, &t.Room, &t.Itemname, &t.Itemtype, &t.Price, &t.Itemdescription)
 			items = append(items, t)
 			if err != nil {
 				fmt.Println(err)
@@ -297,10 +341,13 @@ func main() {
 	// ***********************code to verify  admin *********************
 	r.POST("/verifyAdmin", func(c *gin.Context) {
 
-		fmt.Println("\n\nRequest to verifyAdmin Received : \n\n")
 		var temp admin
 		c.BindJSON(&temp)
-		rows, err := db.Query(` SELECT employee_no, password from item where item_type = $1 `, temp.Employee_no)
+
+		fmt.Println("\n\nRequest to verifyAdmin Received from :", temp.Employee_no)
+		// emp, err := strconv.Atoi(temp.Employee_no)
+
+		rows, err := db.Query(` SELECT employee_no, password from admin where employee_no = $1 `, temp.Employee_no)
 
 		if err != nil {
 			fmt.Println(err)
@@ -318,16 +365,17 @@ func main() {
 				fmt.Println(err)
 				c.JSON(500, "error in verifying admin")
 			}
-			if t.Employee_no == temp.Employee_no && strings.Compare(temp.Password, t.Password) == 0 {
+			if strings.Compare(temp.Employee_no, t.Employee_no) == 0 && strings.Compare(temp.Password, t.Password) == 0 {
 				fmt.Println("Admin verified", t.Employee_no)
 				c.JSON(222, 0)
+				return
 			}
 		}
-		//item deleted successfully
+
 		c.JSON(500, 0)
 	})
 	//***************** function to add student
-	r.GET("/addStudent", func(c *gin.Context) {
+	r.POST("/addStudent", func(c *gin.Context) {
 
 		fmt.Println("\n\nRequest to add student Received : \n\n")
 		var val student
@@ -338,12 +386,12 @@ func main() {
 
 		defer tx.Rollback() // it will be executed after the completion of local function
 
-		err := tx.QueryRow(`INSERT INTO student (roll_no,password,block ) values ($1,$2,$3) returning roll_no`,
+		err := tx.QueryRow(`INSERT INTO students (roll_no,password,block ) values ($1,$2,$3) returning roll_no`,
 			val.Roll_no, val.Password, val.Block).Scan(&rol)
 
 		if err != nil {
-			// c.JSON(500, "error")
-			fmt.Println("error while adding student\n\n", err)
+			c.JSON(500, "error while adding student ")
+			return
 		}
 
 		commit_err := tx.Commit()
@@ -351,11 +399,10 @@ func main() {
 		if commit_err != nil {
 			tx.Rollback()
 			fmt.Println("error while committing \n\n")
-			fmt.Println(commit_err)
 			c.JSON(500, "ERR")
 			return
 		}
-		c.JSON(222, 1)
+		c.JSON(222, "student added")
 
 	})
 	r.POST("/alterStudent", func(c *gin.Context) {
@@ -368,6 +415,7 @@ func main() {
 		tx, _ := db.Begin() // tx => transaction , _ => error and execute
 
 		defer tx.Rollback() // it will be executed after the completion of local function
+		// roll, _ := strconv.Atoi(val.Roll_no)
 		rows, err := db.Query(` SELECT  roll_no,password,block
 		                        from students where roll_no = $1 `, val.Roll_no)
 		if err != nil {
@@ -382,7 +430,7 @@ func main() {
 
 		for rows.Next() {
 			var t student
-			err := rows.Scan(&t.Roll_no, &t.Block)
+			err := rows.Scan(&t.Roll_no, &t.Password, &t.Block)
 			// fmt.Println(t.Item_no, t.Password)
 
 			if err != nil {
@@ -402,6 +450,62 @@ func main() {
 					c.JSON(500, "error while updating student")
 				}
 			}
+			err = tx.Commit()
+			if err != nil {
+				fmt.Println(err)
+				c.JSON(500, "error committing to database")
+				return
+			}
+			c.JSON(222, 0)
+		}
+	})
+
+	//**************function to delete students
+	r.POST("/deletestudent", func(c *gin.Context) {
+
+		fmt.Println("\n\nRequest to delete student Received : \n\n")
+		var val student
+
+		c.BindJSON(&val)
+		fmt.Println("%#v", val)
+		tx, _ := db.Begin() // tx => transaction , _ => error and execute
+
+		defer tx.Rollback() // it will be executed after the completion of local function
+		// roll, _ := strconv.Atoi(val.Roll_no)
+		rows, err := db.Query(` SELECT  roll_no,password,block,total
+		                        from students where roll_no = $1 `, val.Roll_no)
+		if err != nil {
+
+			fmt.Println("error while item from database", err)
+			c.JSON(500, 0)
+		}
+
+		defer rows.Close()
+
+		// fmt.Println("after retreivingvalues from database")
+
+		for rows.Next() {
+			var t student
+			err := rows.Scan(&t.Roll_no, &t.Password, &t.Block, &t.Total)
+			fmt.Println("before deleting student", t.Roll_no)
+
+			if err != nil {
+				fmt.Println(err)
+				c.JSON(500, "error while retreiving vendors menu")
+			}
+			_, err = tx.Exec(`delete from students where   roll_no= $1`, t.Roll_no)
+
+			if err != nil {
+				fmt.Println(err)
+				c.JSON(500, "error while deleting student")
+			}
+			_, err = tx.Exec(`delete from item where  roll_no= $1`, t.Roll_no)
+			err = tx.Commit()
+			if err != nil {
+				fmt.Println(err)
+				c.JSON(500, "error while deleting items on user deletion")
+			}
+
 			c.JSON(222, 0)
 		}
 	})
@@ -413,8 +517,8 @@ func main() {
 //Menu updation
 type item struct {
 	Item_no         int    `json:"item_no,omitempty"`
+	Roll_no         string `json:"roll_no"`
 	Name            string `json:"name"`
-	Roll_no         int    `json:"roll_no"`
 	Email           string `json:"email"`
 	Mobile          string `json:"mobile"`
 	Hostel          string `json:"hostel"`
@@ -438,12 +542,17 @@ type itemType struct {
 }
 
 type admin struct {
-	Employee_no int    `json:"employee_no"`
+	Employee_no string `json:"employee_no"`
 	Password    string `json:"password"`
 }
 
 type student struct {
-	Roll_no  int    `json:"roll_no"`
-	Password string `json:"password"`
-	Block    bool   `json:"block"`
+	Roll_no  string `json:"roll_no"`
+	Password string `json:"password,omitempty"`
+	Block    bool   `json:"block,omitempty"`
+	Total    int    `json:"total,omitempty"`
 }
+
+// type rol struct {
+// 	Roll_no string `json:"roll_no"`
+// }

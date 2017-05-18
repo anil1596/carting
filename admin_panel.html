@@ -1,0 +1,242 @@
+
+
+<html class="gr__">
+    <head>
+        <title>NITH Student Kart</title>
+        <link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+        <!--theme-style-->
+        <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
+        <!--//theme-style-->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <!--fonts-->
+        <link href="//fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet" type="text/css">
+        <link href="//fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900" rel="stylesheet" type="text/css">
+        <!--//fonts-->
+        <!-- start menu -->
+        <link href="css/memenu.css" rel="stylesheet" type="text/css" media="all">
+        <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" />
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <!-- Inline CSS based on choices in "Settings" tab -->
+        <style>.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}
+        </style>
+        <!-- <script type="text/javascript" src="js/memenu.js"></script> -->
+        <script type="text/javascript">
+            window.onload = function() {
+                var currentAdmin = sessionStorage.getItem("admin");
+                console.log( currentAdmin );
+            
+                    let table  = document.getElementById("tableContainer");
+                    if(currentAdmin != ""){
+                        table.style.display = "block";
+                        document.getElementById("greet").innerText = "Hey, " + currentAdmin;
+                        fetchitems();
+                    }
+                    else{
+                        alert("please login!!");
+                        // window.location.href = "file:///home/prabhjot/Documents/anil/carting/admin_login.html";
+                    }
+            
+            };
+                function fetchitems(argument) {
+                    fetch('/getstudents')
+                      .then((resp) => resp.json()) // Transform the data into json
+                      .then(function(data) {
+                        console.log(data);
+            
+                          var tableRef = document.getElementById("userTable");
+            
+                        for(let i=0;i<data.length ; i++){
+                          var newRow = tableRef.insertRow(0);
+                          newRow.id = `${data[i].roll_no}`;
+                          newRow.innerHTML = `
+                                <td>${data[i].roll_no}</td>
+                                <td>${data[i].password}</td>
+                                <td>${(data[i].block)== undefined ? "false" : "true"}</td>
+                                <td>${(data[i].total)== undefined ? 0 : data[i].total }</td>
+                                <td>
+                                     <button onclick="deleteUser(${data[i].roll_no});" type="button" name="" tabindex="2" class="btn btn-danger">DELETE</button>
+                                     <button onclick="blockUser(${data[i].roll_no});" type="button" name="" tabindex="2" class="btn btn-success">TOGGLE BLOCK</button>
+                                </td>`;
+                            }
+            
+            
+                    });
+                }
+            
+                function addUser() {
+                    let rollno   = document.getElementById("rollno").value;
+                    let pass = document.getElementById("password").value;
+            
+                    if(rollno == "" || pass==""){
+                        alert("fill data first.")
+                        return;
+                    }
+                    let blockstatus="";
+            
+                    if(document.getElementById("block").checked){
+                        blockstatus=1;
+                    }
+                    else{
+                        blockstatus=0;
+                   }
+
+                        let studentToAdd = {roll_no : rollno, password : pass , block : blockstatus};
+                        
+                        fetch('/addStudent', {
+                        method: 'POST',
+                        headers: {
+                          'Accept': 'application/json',
+                          'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(studentToAdd)
+                        })
+                        .then(function(resp){ 
+                            console.log(resp);
+                       if(resp.status==222){
+                       var tableRef = document.getElementById("userTable");
+                       var newRow = tableRef.insertRow(0);
+                     newRow.id = `${rollno}`;
+                      newRow.innerHTML = `
+                        <td>${rollno}</td>
+                        <td>${pass}</td>
+                        <td>${blockstatus}</td>
+                        <td>
+                             <button onclick="deleteUser(${rollno});" type="button" name="" tabindex="2" class="btn btn-danger">DELETE</button>
+                             <button onclick="blockUser(${rollno});" type="button" name="" tabindex="2" class="btn btn-success">TOGGLE BLOCK</button>
+                        </td>`;
+                       } 
+                            console.log("student added");
+                            });
+            
+                    }
+            
+                    function deleteUser(rollno) {
+                        console.log(rollno)
+                        let row = document.getElementById(rollno);
+                        row.parentNode.removeChild(row);
+            
+                        let itemToDelete = {roll_no : ""+rollno+""};
+                        
+                        fetch('/deletestudent', {
+                        method: 'POST',
+                        headers: {
+                          'Accept': 'application/json',
+                          'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(itemToDelete)
+                        })
+                        .then(function(resp){ 
+                            console.log(resp);
+                            console.log("student deleted, ", rollno);
+                            });
+                    }
+            
+                    function blockUser(rollno) {
+                        
+                        let row = document.getElementById(rollno);
+                        let sendStatus=0;
+                        if(row.cells[2].innerText == "blocked"){
+                                row.cells[2].innerText = "unblocked";
+                                sendStatus=0;
+                        }
+                        else{
+                            row.cells[2].innerText = "blocked";
+                            sendStatus=1;
+                        }
+            
+                        let userToBlock = {roll_no : ""+rollno};
+                        
+                        fetch('/alterStudent', {
+                        method: 'POST',
+                        headers: {
+                          'Accept': 'application/json',
+                          'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(userToBlock)
+                        })
+                        .then(function(resp){ 
+                            console.log(resp);
+                        });
+            
+                    }
+            
+                    function logout() {
+                        sessionStorage.setItem("admin","");
+                        // window.location.href = "/admin_login";
+                    }
+            
+            
+        </script>
+    </head>
+    <body data-gr-c-s-loaded="true">
+        <!--header-->
+        <div class="header">
+            <div class="header-top">
+                <div class="container">
+                    <div class="social">
+                        <h3>NITH STUDENT KART</h3>
+                    </div>
+                    <div class="header-left">
+                        <div class="clearfix"> </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+            </div>
+        </div>
+        <!-- grow -->
+        <div class="grow">
+            <div class="container">
+                <h2>
+                    ADMIN PANEL
+                    <p class=" pull-right" style="color: #fff; font-size:21px;" id="greet" >Hey</p>
+                    <a class=" pull-right" style="color: #fff; font-size:21px;padding-right: 20%;" onclick="logout();" href="/admin_login" >Logout </a>
+                    <a class=" pull-right" style="color: #fff; font-size:21px;padding-right: 5%;" href="main">Home</a>
+                </h2>
+            </div>
+        </div>
+        <br><br>
+        <div id="tableContainer" style="display: none;" class="container">
+            <table class="table table-bordered table-striped table-hover table-responsive">
+                <thead>
+                    <tr>
+                        <th>ROLL NO</th>
+                        <th>PASSWORD</th>
+                        <th>BLOCK STATUS</th>
+                        <th>TOTAL ITEMS</th>
+                        <th>ADD / DELETE</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    <tr>
+                        <td>
+                            <input type="text" name="rollno" id="rollno" tabindex="1" class="form-control" placeholder="roll no" value="">
+                        </td>
+                        <td>
+                            <input type="text" name="password" id="password" tabindex="1" class="form-control" placeholder="password" value="">
+                        </td>
+                        <td>
+                            <form >
+                                <input id="block" type="radio" name="blocked" value="block" > blocked
+                                <input id="unblock" type="radio" name="blocked" value="unblock" checked=""> unblocked
+                            </form>
+                        </td>
+                        <td>
+                            <button onclick="addUser()" type="button" name="" tabindex="2" class="btn btn-primary">ADD</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer w3layouts" style=" bottom:0px; position:fixed;margin-bottom:0px;left:0px; right:0px;">
+            <div class="footer-class w3-agile">
+                <p>© 2017 STORE. All Rights Reserved | Made at  <a href="" target="_blank">NITH</a> </p>
+            </div>
+        </div>
+    </body>
+</html>
+
