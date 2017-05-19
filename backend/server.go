@@ -233,6 +233,7 @@ func main() {
 				}
 				fmt.Println("item added successfully")
 				c.JSON(222, 1)
+				return
 			}
 		}
 		//item deleted successfully

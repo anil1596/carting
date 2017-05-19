@@ -64,9 +64,17 @@
                             },
                             credentials: 'same-origin',
                             body: JSON.stringify(data)
-                    });
+                    }).then(function(resp){ 
+                               console.log(resp);
+                               if(resp.status==222){
+                                   alert("item uploaded!!!");
+                               }else{
+                                   alert("unauthorized access!!!");
+                               }
+         
+                           });
             
-            //   document.getElementById("sellerForm").reset(); 
+              document.getElementById("sellerForm").reset(); 
             }
         </script>
     </head>
